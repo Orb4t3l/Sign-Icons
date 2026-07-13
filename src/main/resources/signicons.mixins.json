@@ -5,7 +5,8 @@
   "refmap": "signicons.refmap.json",
   "client": [
     "SignRendererMixin",
-    "SignEditScreenMixin"
+    "SignEditScreenMixin",
+    "SignBlockEntityMixin"
   ],
   "minVersion": "0.8"
 }

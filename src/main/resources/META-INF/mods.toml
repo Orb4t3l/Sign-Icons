@@ -9,7 +9,7 @@ version = "${mod_version}"
 displayName = "SignIcons"
 description = '''
 Type :item_id: on a sign or hanging sign and it renders as the item's
-in-game icon, Bedrock-style. Purely visual/client-side the raw text
+in-game icon, Bedrock-style. Purely visual/client-side - the raw text
 stays as-is, so players without the mod just see the plain text.
 '''
 authors = "orbital"
