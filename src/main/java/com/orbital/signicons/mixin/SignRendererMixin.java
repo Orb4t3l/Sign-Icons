@@ -64,7 +64,7 @@ public class SignRendererMixin {
                     cursorX += font.width(textSeg.text());
                 }
             } else if (segment instanceof IconTextUtil.IconSegment iconSeg) {
-                float iconSize = font.lineHeight;
+                float iconSize = font.lineHeight * 1.8f;
 
                 PoseStack itemPoseStack = new PoseStack();
                 itemPoseStack.last().pose().set(matrix);
@@ -73,7 +73,7 @@ public class SignRendererMixin {
 
                 Minecraft.getInstance().getItemRenderer().renderStatic(
                         iconSeg.stack(),
-                        ItemDisplayContext.FIXED,
+                        ItemDisplayContext.GUI,
                         packedLight,
                         OverlayTexture.NO_OVERLAY,
                         itemPoseStack,
