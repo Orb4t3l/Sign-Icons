@@ -68,8 +68,8 @@ public class SignRendererMixin {
 
                 PoseStack itemPoseStack = new PoseStack();
                 itemPoseStack.last().pose().set(matrix);
-                itemPoseStack.translate(cursorX / 64.0, y / 64.0, 0.0);
-                itemPoseStack.scale(iconSize / 64.0f, iconSize / 64.0f, 1.0f);
+                itemPoseStack.translate(cursorX, y, 0.02f);
+                itemPoseStack.scale(iconSize, -iconSize, iconSize);
 
                 Minecraft.getInstance().getItemRenderer().renderStatic(
                         iconSeg.stack(),
