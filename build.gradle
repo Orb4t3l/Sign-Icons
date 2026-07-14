@@ -20,13 +20,58 @@ println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty '
 minecraft {
     mappings channel: 'official', version: minecraft_version
 
+    copyIdeResources = true
+
     runs {
-        client {
+        configureEach {
             workingDirectory project.file('run')
+
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        }
+
+        client {
+            property 'forge.enabledGameTestNamespaces', mod_id
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--nogui'
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        gameTestServer {
+            property 'forge.enabledGameTestNamespaces', mod_id
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run-data')
+
+            args '--mod', mod_id,
+                    '--all',
+                    '--output', file('src/generated/resources/'),
+                    '--existing', file('src/main/resources/')
+
             mods {
                 "${mod_id}" {
                     source sourceSets.main
@@ -34,6 +79,11 @@ minecraft {
             }
         }
     }
+}
+
+
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
 }
 
 mixin {
@@ -52,16 +102,36 @@ dependencies {
 }
 
 tasks.named('processResources', ProcessResources).configure {
-    var replaceProperties = [
+    def replaceProperties = [
             minecraft_version    : minecraft_version,
             loader_version_range : loader_version_range,
-            mod_id               : mod_id,
-            mod_name             : mod_name,
-            mod_version          : project.version,
-            mod_license          : mod_license
+            mod_id              : mod_id,
+            mod_name            : mod_name,
+            mod_version         : mod_version,
+            mod_license         : mod_license
     ]
+
     inputs.properties replaceProperties
-    filesMatching(['META-INF/mods.toml']) {
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea.module {
+    downloadJavadoc = downloadSources = true
+}
+
+eclipse {
+    synchronizationTasks 'genEclipseRuns'
+}
+
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourceSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
 }
