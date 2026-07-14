@@ -5,7 +5,7 @@ import com.orbital.signicons.IconTextUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.SignRenderer;
+import net.minecraft.client.renderer.blockentity.AbstractSignRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.List;
 import java.util.function.Function;
 
-@Mixin(SignRenderer.class)
+@Mixin(AbstractSignRenderer.class)
 public class SignRendererMixin {
 
     private static final float ICON_SIZE_MULTIPLIER = 0.9f;
