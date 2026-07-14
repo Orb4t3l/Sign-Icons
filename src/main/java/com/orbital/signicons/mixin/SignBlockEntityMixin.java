@@ -11,6 +11,6 @@ public class SignBlockEntityMixin {
 
     @Inject(method = "getMaxTextLineWidth", at = @At("RETURN"), cancellable = true)
     private void signicons$widenTextLineCap(CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue((int) (cir.getReturnValueI() * 2.2f));
+        cir.setReturnValue((int) (cir.getReturnValueI() * 1.5f));
     }
 }

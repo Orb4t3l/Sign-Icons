@@ -150,7 +150,8 @@ public abstract class ChatComponentMixin {
         }
 
         float cursorX = x;
-        float iconSize = font.lineHeight * 1.4f;
+        float iconSize = font.lineHeight * 0.9f;
+        float iconAdvance = iconSize * 1.15f;
 
         for (IconTextUtil.Segment segment : segments) {
             if (segment instanceof IconTextUtil.TextSegment textSeg) {
@@ -165,7 +166,7 @@ public abstract class ChatComponentMixin {
                 guiGraphics.pose().scale(scale, scale, 1.0f);
                 guiGraphics.renderItem(iconSeg.stack(), 0, 0);
                 guiGraphics.pose().popPose();
-                cursorX += iconSize;
+                cursorX += iconAdvance;
             }
         }
     }

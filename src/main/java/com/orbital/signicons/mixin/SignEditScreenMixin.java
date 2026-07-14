@@ -93,16 +93,19 @@ public abstract class SignEditScreenMixin {
         ci.cancel();
     }
 
+    private static final float ICON_SIZE_MULTIPLIER = 0.9f;
+    private static final float ICON_ADVANCE_MULTIPLIER = 1.15f;
+
     private static int signicons$width(Font font, String text) {
         List<IconTextUtil.Segment> segments = IconTextUtil.parse(text);
         if (segments == null) return font.width(text);
         float width = 0;
-        float iconSize = font.lineHeight * 1.8f;
+        float iconSize = font.lineHeight * ICON_SIZE_MULTIPLIER;
         for (IconTextUtil.Segment segment : segments) {
             if (segment instanceof IconTextUtil.TextSegment t) {
                 width += font.width(t.text());
             } else {
-                width += iconSize;
+                width += iconSize * ICON_ADVANCE_MULTIPLIER;
             }
         }
         return (int) width;
@@ -116,7 +119,7 @@ public abstract class SignEditScreenMixin {
         }
 
         float cursorX = x;
-        float iconSize = font.lineHeight * 1.8f;
+        float iconSize = font.lineHeight * ICON_SIZE_MULTIPLIER;
 
         for (IconTextUtil.Segment segment : segments) {
             if (segment instanceof IconTextUtil.TextSegment textSeg) {
@@ -131,7 +134,7 @@ public abstract class SignEditScreenMixin {
                 guiGraphics.pose().scale(scale, scale, 1.0f);
                 guiGraphics.renderItem(iconSeg.stack(), 0, 0);
                 guiGraphics.pose().popPose();
-                cursorX += iconSize;
+                cursorX += iconSize * ICON_ADVANCE_MULTIPLIER;
             }
         }
     }

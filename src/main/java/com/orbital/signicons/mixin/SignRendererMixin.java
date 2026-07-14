@@ -21,6 +21,9 @@ import java.util.List;
 @Mixin(SignRenderer.class)
 public class SignRendererMixin {
 
+    private static final float ICON_SIZE_MULTIPLIER = 0.9f;
+    private static final float ICON_ADVANCE_MULTIPLIER = 1.15f;
+
     @Redirect(
             method = "renderSignText",
             at = @At(
@@ -54,7 +57,17 @@ public class SignRendererMixin {
         }
 
         Level level = Minecraft.getInstance().level;
-        float cursorX = x;
+        float iconSize = font.lineHeight * ICON_SIZE_MULTIPLIER;
+
+        float totalWidth = 0;
+        for (IconTextUtil.Segment segment : segments) {
+            if (segment instanceof IconTextUtil.TextSegment textSeg) {
+                totalWidth += font.width(textSeg.text());
+            } else {
+                totalWidth += iconSize * ICON_ADVANCE_MULTIPLIER;
+            }
+        }
+        float cursorX = -totalWidth / 2.0f;
 
         for (IconTextUtil.Segment segment : segments) {
             if (segment instanceof IconTextUtil.TextSegment textSeg) {
@@ -64,8 +77,6 @@ public class SignRendererMixin {
                     cursorX += font.width(textSeg.text());
                 }
             } else if (segment instanceof IconTextUtil.IconSegment iconSeg) {
-                float iconSize = font.lineHeight * 1.8f;
-
                 PoseStack itemPoseStack = new PoseStack();
                 itemPoseStack.last().pose().set(matrix);
                 itemPoseStack.translate(cursorX, y, 0.02f);
@@ -83,7 +94,7 @@ public class SignRendererMixin {
                         0
                 );
                 com.mojang.blaze3d.platform.Lighting.setupFor3DItems();
-                cursorX += iconSize;
+                cursorX += iconSize * ICON_ADVANCE_MULTIPLIER;
             }
         }
 
