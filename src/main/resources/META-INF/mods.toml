@@ -1,28 +1,30 @@
 modLoader = "javafml"
-loaderVersion = "[47,)"
-license = "MIT"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
 issueTrackerURL = "https://github.com/yourname/signicons/issues"
+#clientSideOnly = true
 
 [[mods]]
-modId = "signicons"
+modId = "${mod_id}"
 version = "${mod_version}"
-displayName = "SignIcons"
+displayName = "${mod_name}"
 description = '''
 Type :item_id: on a sign or hanging sign and it renders as the item's
 in-game icon, Bedrock-style. Purely visual/client-side - the raw text
 stays as-is, so players without the mod just see the plain text.
 '''
 authors = "orbital"
-[[dependencies.signicons]]
+
+[[dependencies."${mod_id}"]]
 modId = "forge"
 mandatory = true
-versionRange = "[47,)"
+versionRange = "${loader_version_range}"
 ordering = "NONE"
 side = "CLIENT"
 
-[[dependencies.signicons]]
+[[dependencies."${mod_id}"]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.1,1.21)"
+versionRange = "[${minecraft_version},)"
 ordering = "NONE"
 side = "CLIENT"

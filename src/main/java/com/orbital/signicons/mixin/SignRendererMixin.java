@@ -7,16 +7,21 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.SignText;
 import org.joml.Matrix4f;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Mixin(SignRenderer.class)
 public class SignRendererMixin {
@@ -24,8 +29,27 @@ public class SignRendererMixin {
     private static final float ICON_SIZE_MULTIPLIER = 0.9f;
     private static final float ICON_ADVANCE_MULTIPLIER = 1.15f;
 
+    @Shadow @Final private Font font;
+
     @Redirect(
-            method = "renderSignText",
+            method = "renderSignText(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/entity/SignText;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIIZ)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/block/entity/SignText;getRenderMessages(ZLjava/util/function/Function;)[Lnet/minecraft/util/FormattedCharSequence;"
+            )
+    )
+    private FormattedCharSequence[] signicons$getRenderMessages(SignText signText, boolean filtered, Function<Component, FormattedCharSequence> splitter) {
+        return signText.getRenderMessages(filtered, component -> {
+            if (IconTextUtil.parse(component.getString()) != null) {
+                List<FormattedCharSequence> list = this.font.split(component, Integer.MAX_VALUE / 2);
+                return list.isEmpty() ? FormattedCharSequence.EMPTY : list.get(0);
+            }
+            return splitter.apply(component);
+        });
+    }
+
+    @Redirect(
+            method = "renderSignText(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/entity/SignText;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIIZ)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/Font;drawInBatch(Lnet/minecraft/util/FormattedCharSequence;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)I"

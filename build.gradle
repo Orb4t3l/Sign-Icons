@@ -6,22 +6,20 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
 }
 
-version = '1.0.0'
-group = 'com.orbital.signicons'
+version = mod_version
+group = mod_group_id
 
 base {
-    archivesName = 'signicons'
+    archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 
 minecraft {
-    mappings channel: 'official', version: '1.20.1'
+    mappings channel: 'official', version: minecraft_version
 
-    // This mod is CLIENT-SIDE ONLY. We still generate a "server" run for convenience
-    // during dev, but the mod itself does nothing on a dedicated server.
     runs {
         client {
             workingDirectory project.file('run')
@@ -30,7 +28,7 @@ minecraft {
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
-                signicons {
+                "${mod_id}" {
                     source sourceSets.main
                 }
             }
@@ -39,8 +37,8 @@ minecraft {
 }
 
 mixin {
-    add sourceSets.main, 'signicons.refmap.json'
-    config 'signicons.mixins.json'
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
 }
 
 repositories {
@@ -49,17 +47,18 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    minecraft "net.minecraftforge:forge:${forge_version}"
+    annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
 }
 
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [
-            minecraft_version: '1.20.1',
-            forge_version    : '47.2.0',
-            mod_id           : 'signicons',
-            mod_name         : 'SignIcons',
-            mod_version      : project.version
+            minecraft_version    : minecraft_version,
+            loader_version_range : loader_version_range,
+            mod_id               : mod_id,
+            mod_name             : mod_name,
+            mod_version          : project.version,
+            mod_license          : mod_license
     ]
     inputs.properties replaceProperties
     filesMatching(['META-INF/mods.toml']) {
