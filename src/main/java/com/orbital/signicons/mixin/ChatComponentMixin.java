@@ -39,7 +39,7 @@ public abstract class ChatComponentMixin {
     @Shadow private static double getTimeFactor(int age) { return 0; }
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void signicons$render(GuiGraphics guiGraphics, int guiTicks, int mouseX, int mouseY, CallbackInfo ci) {
+    private void signicons$render(GuiGraphics guiGraphics, int guiTicks, int mouseX, int mouseY, boolean focusedParam, CallbackInfo ci) {
         if (this.isChatHidden()) {
             ci.cancel();
             return;
