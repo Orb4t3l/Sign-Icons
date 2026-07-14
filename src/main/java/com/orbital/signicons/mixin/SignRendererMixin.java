@@ -69,8 +69,9 @@ public class SignRendererMixin {
                 PoseStack itemPoseStack = new PoseStack();
                 itemPoseStack.last().pose().set(matrix);
                 itemPoseStack.translate(cursorX, y, 0.02f);
-                itemPoseStack.scale(iconSize, -iconSize, iconSize);
+                itemPoseStack.scale(iconSize, -iconSize, iconSize * 0.02f);
 
+                com.mojang.blaze3d.platform.Lighting.setupForFlatItems();
                 Minecraft.getInstance().getItemRenderer().renderStatic(
                         iconSeg.stack(),
                         ItemDisplayContext.GUI,
@@ -81,6 +82,7 @@ public class SignRendererMixin {
                         level,
                         0
                 );
+                com.mojang.blaze3d.platform.Lighting.setupFor3DItems();
                 cursorX += iconSize;
             }
         }
