@@ -6,7 +6,6 @@
   "client": [
     "SignRendererMixin",
     "SignEditScreenMixin",
-    "SignBlockEntityMixin",
     "ChatComponentMixin"
   ],
   "minVersion": "0.8"

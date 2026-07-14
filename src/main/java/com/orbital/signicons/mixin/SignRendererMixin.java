@@ -79,7 +79,7 @@ public class SignRendererMixin {
             } else if (segment instanceof IconTextUtil.IconSegment iconSeg) {
                 PoseStack itemPoseStack = new PoseStack();
                 itemPoseStack.last().pose().set(matrix);
-                itemPoseStack.translate(cursorX, y, 0.02f);
+                itemPoseStack.translate(cursorX, y + iconSize * 0.12f, 0.02f);
                 itemPoseStack.scale(iconSize, -iconSize, iconSize * 0.02f);
 
                 com.mojang.blaze3d.platform.Lighting.setupForFlatItems();

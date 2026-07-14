@@ -161,7 +161,7 @@ public abstract class ChatComponentMixin {
                 }
             } else if (segment instanceof IconTextUtil.IconSegment iconSeg) {
                 guiGraphics.pose().pushPose();
-                guiGraphics.pose().translate(cursorX, y - iconSize / 4.0f, 0.0f);
+                guiGraphics.pose().translate(cursorX, y - iconSize / 10.0f, 0.0f);
                 float scale = iconSize / 16.0f;
                 guiGraphics.pose().scale(scale, scale, 1.0f);
                 guiGraphics.renderItem(iconSeg.stack(), 0, 0);

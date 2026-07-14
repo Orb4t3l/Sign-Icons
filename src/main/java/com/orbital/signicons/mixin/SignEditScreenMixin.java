@@ -28,8 +28,26 @@ public abstract class SignEditScreenMixin {
     @Shadow private int frame;
     @Shadow private int line;
     @Shadow private TextFieldHelper signField;
+    @Shadow private void setMessage(String message) {}
     @Shadow
     protected abstract Vector3f getSignTextScale();
+
+    @Inject(method = "init()V", at = @At("TAIL"))
+    private void signicons$widenValidatorMidToken(CallbackInfo ci) {
+        this.signField = new TextFieldHelper(
+                () -> this.messages[this.line],
+                this::setMessage,
+                TextFieldHelper.createClipboardGetter(Minecraft.getInstance()),
+                TextFieldHelper.createClipboardSetter(Minecraft.getInstance()),
+                candidate -> {
+                    long colonCount = candidate.chars().filter(c -> c == ':').count();
+                    if (colonCount % 2 == 1) {
+                        return true;
+                    }
+                    return signicons$width(Minecraft.getInstance().font, candidate) <= this.sign.getMaxTextLineWidth();
+                }
+        );
+    }
 
     @Inject(method = "renderSignText(Lnet/minecraft/client/gui/GuiGraphics;)V", at = @At("HEAD"), cancellable = true)
     private void signicons$renderSignText(GuiGraphics guiGraphics, CallbackInfo ci) {
