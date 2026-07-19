@@ -56,9 +56,9 @@ public abstract class ChatComponentMixin {
         float scale = (float) this.getScale();
         int chatWidth = Mth.ceil((float) this.getWidth() / scale);
         int guiHeight = guiGraphics.guiHeight();
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(scale, scale, 1.0F);
-        guiGraphics.pose().translate(4.0F, 0.0F, 0.0F);
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().scale(scale, scale);
+        guiGraphics.pose().translate(4.0F, 0.0F);
         int bottomY = Mth.floor((float) (guiHeight - 40) / scale);
         int clickedEndIndex = this.getMessageEndIndexAt(this.screenToChatX(mouseX), this.screenToChatY(mouseY));
         double chatOpacity = this.minecraft.options.chatOpacity().get() * 0.9F + 0.1F;
@@ -83,8 +83,7 @@ public abstract class ChatComponentMixin {
                 if (textAlpha > 3) {
                     int lineTopY = bottomY - i * lineHeight;
                     int textY = lineTopY + textYOffset;
-                    guiGraphics.pose().pushPose();
-                    guiGraphics.pose().translate(0.0F, 0.0F, 50.0F);
+                    guiGraphics.pose().pushMatrix();
                     guiGraphics.fill(-4, lineTopY - lineHeight, chatWidth + 4 + 4, lineTopY, bgAlpha << 24);
                     GuiMessageTag tag = line.tag();
                     if (tag != null) {
@@ -97,9 +96,8 @@ public abstract class ChatComponentMixin {
                         }
                     }
 
-                    guiGraphics.pose().translate(0.0F, 0.0F, 50.0F);
                     signicons$drawLine(guiGraphics, this.minecraft.font, line.content(), 0, textY, 16777215 + (textAlpha << 24));
-                    guiGraphics.pose().popPose();
+                    guiGraphics.pose().popMatrix();
                 }
             }
         }
@@ -108,12 +106,11 @@ public abstract class ChatComponentMixin {
         if (queueSize > 0L) {
             int queueTextAlpha = (int) (128.0D * chatOpacity);
             int queueBgAlpha = (int) (255.0D * bgOpacity);
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0.0F, (float) bottomY, 50.0F);
+            guiGraphics.pose().pushMatrix();
+            guiGraphics.pose().translate(0.0F, (float) bottomY);
             guiGraphics.fill(-2, 0, chatWidth + 4, 9, queueBgAlpha << 24);
-            guiGraphics.pose().translate(0.0F, 0.0F, 50.0F);
             guiGraphics.drawString(this.minecraft.font, net.minecraft.network.chat.Component.translatable("chat.queue", queueSize), 0, 1, 16777215 + (queueTextAlpha << 24));
-            guiGraphics.pose().popPose();
+            guiGraphics.pose().popMatrix();
         }
 
         if (focused) {
@@ -131,7 +128,7 @@ public abstract class ChatComponentMixin {
             }
         }
 
-        guiGraphics.pose().popPose();
+        guiGraphics.pose().popMatrix();
         ci.cancel();
     }
 
@@ -160,12 +157,12 @@ public abstract class ChatComponentMixin {
                     cursorX += font.width(textSeg.text());
                 }
             } else if (segment instanceof IconTextUtil.IconSegment iconSeg) {
-                guiGraphics.pose().pushPose();
-                guiGraphics.pose().translate(cursorX, y - iconSize / 10.0f, 0.0f);
+                guiGraphics.pose().pushMatrix();
+                guiGraphics.pose().translate(cursorX, y - iconSize / 10.0f);
                 float scale = iconSize / 16.0f;
-                guiGraphics.pose().scale(scale, scale, 1.0f);
+                guiGraphics.pose().scale(scale, scale);
                 guiGraphics.renderItem(iconSeg.stack(), 0, 0);
-                guiGraphics.pose().popPose();
+                guiGraphics.pose().popMatrix();
                 cursorX += iconAdvance;
             }
         }

@@ -6,7 +6,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import org.joml.Vector3f;
@@ -52,9 +51,9 @@ public abstract class SignEditScreenMixin {
     @Inject(method = "renderSignText(Lnet/minecraft/client/gui/GuiGraphics;)V", at = @At("HEAD"), cancellable = true)
     private void signicons$renderSignText(GuiGraphics guiGraphics, CallbackInfo ci) {
         Font font = Minecraft.getInstance().font;
-        guiGraphics.pose().translate(0.0F, 0.0F, 4.0F);
+        guiGraphics.pose().translate(0.0F, 0.0F);
         Vector3f scaleVec = this.getSignTextScale();
-        guiGraphics.pose().scale(scaleVec.x(), scaleVec.y(), scaleVec.z());
+        guiGraphics.pose().scale(scaleVec.x(), scaleVec.y());
 
         int color = this.text.getColor().getTextColor();
         boolean blink = this.frame / 6 % 2 == 0;
@@ -104,7 +103,7 @@ public abstract class SignEditScreenMixin {
                 int hiX = signicons$width(font, msg.substring(0, hi)) - lineWidth / 2;
                 int minX = Math.min(loX, hiX);
                 int maxX = Math.max(loX, hiX);
-                guiGraphics.fill(RenderType.guiTextHighlight(), minX, cursorLineY, maxX, cursorLineY + lineHeight, -16776961);
+                guiGraphics.fill(minX, cursorLineY, maxX, cursorLineY + lineHeight, -16776961);
             }
         }
 
@@ -146,12 +145,12 @@ public abstract class SignEditScreenMixin {
                     cursorX += font.width(textSeg.text());
                 }
             } else if (segment instanceof IconTextUtil.IconSegment iconSeg) {
-                guiGraphics.pose().pushPose();
-                guiGraphics.pose().translate(cursorX, y - iconSize / 4.0f, 0.0f);
+                guiGraphics.pose().pushMatrix();
+                guiGraphics.pose().translate(cursorX, y - iconSize / 4.0f);
                 float scale = iconSize / 16.0f;
-                guiGraphics.pose().scale(scale, scale, 1.0f);
+                guiGraphics.pose().scale(scale, scale);
                 guiGraphics.renderItem(iconSeg.stack(), 0, 0);
-                guiGraphics.pose().popPose();
+                guiGraphics.pose().popMatrix();
                 cursorX += iconSize * ICON_ADVANCE_MULTIPLIER;
             }
         }

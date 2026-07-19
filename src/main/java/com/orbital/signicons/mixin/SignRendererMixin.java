@@ -52,10 +52,10 @@ public class SignRendererMixin {
             method = "renderSignText(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/entity/SignText;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIIZ)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Font;drawInBatch(Lnet/minecraft/util/FormattedCharSequence;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)I"
+                    target = "Lnet/minecraft/client/gui/Font;drawInBatch(Lnet/minecraft/util/FormattedCharSequence;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)V"
             )
     )
-    private int signicons$drawTextOrIcons(
+    private void signicons$drawTextOrIcons(
             Font font,
             FormattedCharSequence text,
             float x,
@@ -77,7 +77,8 @@ public class SignRendererMixin {
 
         List<IconTextUtil.Segment> segments = IconTextUtil.parse(raw);
         if (segments == null) {
-            return font.drawInBatch(text, x, y, color, dropShadow, matrix, bufferSource, displayMode, backgroundColor, packedLight);
+            font.drawInBatch(text, x, y, color, dropShadow, matrix, bufferSource, displayMode, backgroundColor, packedLight);
+            return;
         }
 
         Level level = Minecraft.getInstance().level;
@@ -106,7 +107,6 @@ public class SignRendererMixin {
                 itemPoseStack.translate(cursorX, y + iconSize * 0.12f, 0.02f);
                 itemPoseStack.scale(iconSize, -iconSize, iconSize * 0.02f);
 
-                com.mojang.blaze3d.platform.Lighting.setupForFlatItems();
                 Minecraft.getInstance().getItemRenderer().renderStatic(
                         iconSeg.stack(),
                         ItemDisplayContext.GUI,
@@ -117,11 +117,8 @@ public class SignRendererMixin {
                         level,
                         0
                 );
-                com.mojang.blaze3d.platform.Lighting.setupFor3DItems();
                 cursorX += iconSize * ICON_ADVANCE_MULTIPLIER;
             }
         }
-
-        return (int) cursorX;
     }
 }
