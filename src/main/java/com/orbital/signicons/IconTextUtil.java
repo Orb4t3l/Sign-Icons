@@ -1,6 +1,6 @@
 package com.orbital.signicons;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -41,7 +41,7 @@ public final class IconTextUtil {
                 path = matcher.group(1);
             }
 
-            ResourceLocation id = ResourceLocation.tryBuild(namespace, path);
+            Identifier id = Identifier.tryBuild(namespace, path);
             if (id == null) continue;
 
             Item item = ForgeRegistries.ITEMS.getValue(id);
