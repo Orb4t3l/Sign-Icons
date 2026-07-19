@@ -4,16 +4,16 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.orbital.signicons.IconTextUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.AbstractSignRenderer;
+import net.minecraft.client.renderer.blockentity.state.SignRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Style;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.SignText;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,7 +32,7 @@ public class SignRendererMixin {
     @Shadow @Final private Font font;
 
     @Redirect(
-            method = "renderSignText(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/entity/SignText;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIIZ)V",
+            method = "submitSignText(Lnet/minecraft/client/renderer/blockentity/state/SignRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Z)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/entity/SignText;getRenderMessages(ZLjava/util/function/Function;)[Lnet/minecraft/util/FormattedCharSequence;"
@@ -49,24 +49,24 @@ public class SignRendererMixin {
     }
 
     @Redirect(
-            method = "renderSignText(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/entity/SignText;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIIZ)V",
+            method = "submitSignText(Lnet/minecraft/client/renderer/blockentity/state/SignRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Z)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Font;drawInBatch(Lnet/minecraft/util/FormattedCharSequence;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)V"
+                    target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitText(Lcom/mojang/blaze3d/vertex/PoseStack;FFLnet/minecraft/util/FormattedCharSequence;ZLnet/minecraft/client/gui/Font$DisplayMode;IIII)V"
             )
     )
-    private void signicons$drawTextOrIcons(
-            Font font,
-            FormattedCharSequence text,
+    private void signicons$submitTextOrIcons(
+            SubmitNodeCollector collector,
+            PoseStack poseStack,
             float x,
             float y,
-            int color,
+            FormattedCharSequence text,
             boolean dropShadow,
-            Matrix4f matrix,
-            MultiBufferSource bufferSource,
             Font.DisplayMode displayMode,
+            int lightCoords,
+            int color,
             int backgroundColor,
-            int packedLight
+            int outlineColor
     ) {
         StringBuilder rawBuilder = new StringBuilder();
         text.accept((index, style, codePoint) -> {
@@ -77,11 +77,10 @@ public class SignRendererMixin {
 
         List<IconTextUtil.Segment> segments = IconTextUtil.parse(raw);
         if (segments == null) {
-            font.drawInBatch(text, x, y, color, dropShadow, matrix, bufferSource, displayMode, backgroundColor, packedLight);
+            collector.submitText(poseStack, x, y, text, dropShadow, displayMode, lightCoords, color, backgroundColor, outlineColor);
             return;
         }
 
-        Level level = Minecraft.getInstance().level;
         float iconSize = font.lineHeight * ICON_SIZE_MULTIPLIER;
 
         float totalWidth = 0;
@@ -98,25 +97,26 @@ public class SignRendererMixin {
             if (segment instanceof IconTextUtil.TextSegment textSeg) {
                 if (!textSeg.text().isEmpty()) {
                     FormattedCharSequence part = FormattedCharSequence.forward(textSeg.text(), Style.EMPTY);
-                    font.drawInBatch(part, cursorX, y, color, dropShadow, matrix, bufferSource, displayMode, backgroundColor, packedLight);
+                    collector.submitText(poseStack, cursorX, y, part, dropShadow, displayMode, lightCoords, color, backgroundColor, outlineColor);
                     cursorX += font.width(textSeg.text());
                 }
             } else if (segment instanceof IconTextUtil.IconSegment iconSeg) {
-                PoseStack itemPoseStack = new PoseStack();
-                itemPoseStack.last().pose().set(matrix);
-                itemPoseStack.translate(cursorX, y + iconSize * 0.12f, 0.02f);
-                itemPoseStack.scale(iconSize, -iconSize, iconSize * 0.02f);
+                poseStack.pushPose();
+                poseStack.translate(cursorX, y + iconSize * 0.12f, 0.02f);
+                poseStack.scale(iconSize, -iconSize, iconSize * 0.02f);
 
-                Minecraft.getInstance().getItemRenderer().renderStatic(
+                ItemStackRenderState state = new ItemStackRenderState();
+                Minecraft.getInstance().getItemModelResolver().updateForTopItem(
+                        state,
                         iconSeg.stack(),
                         ItemDisplayContext.GUI,
-                        packedLight,
-                        OverlayTexture.NO_OVERLAY,
-                        itemPoseStack,
-                        bufferSource,
-                        level,
+                        Minecraft.getInstance().level,
+                        null,
                         0
                 );
+                state.submit(poseStack, collector, lightCoords, OverlayTexture.NO_OVERLAY, 0);
+
+                poseStack.popPose();
                 cursorX += iconSize * ICON_ADVANCE_MULTIPLIER;
             }
         }
