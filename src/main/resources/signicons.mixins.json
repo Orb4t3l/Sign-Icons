@@ -2,11 +2,12 @@
   "required": true,
   "package": "com.orbital.signicons.mixin",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "signicons.refmap.json",
   "client": [
     "SignRendererMixin",
     "SignEditScreenMixin",
     "ChatComponentMixin"
   ],
-  "minVersion": "0.8"
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

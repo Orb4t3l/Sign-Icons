@@ -1,10 +1,10 @@
 package com.orbital.signicons;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,10 +41,10 @@ public final class IconTextUtil {
                 path = matcher.group(1);
             }
 
-            ResourceLocation id = ResourceLocation.tryBuild(namespace, path);
+            Identifier id = Identifier.tryParse(namespace + ":" + path);
             if (id == null) continue;
 
-            Item item = ForgeRegistries.ITEMS.getValue(id);
+            Item item = Registries.ITEM.get(id);
             if (item == null || item.equals(Items.AIR)) {
                 continue;
             }

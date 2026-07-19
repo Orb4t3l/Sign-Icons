@@ -1,9 +1,6 @@
 plugins {
-    id 'eclipse'
-    id 'idea'
+    id 'fabric-loom' version '1.2.7'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
 }
 
 version = mod_version
@@ -13,55 +10,32 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
-
-minecraft {
-    mappings channel: 'official', version: minecraft_version
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
-}
-
-mixin {
-    add sourceSets.main, "${mod_id}.refmap.json"
-    config "${mod_id}.mixins.json"
-}
-
 repositories {
     mavenCentral()
-    maven { url = 'https://maven.minecraftforge.net/' }
+    maven { url = 'https://maven.fabricmc.net/' }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${forge_version}"
-    annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 }
 
-tasks.named('processResources', ProcessResources).configure {
-    var replaceProperties = [
-            minecraft_version    : minecraft_version,
-            loader_version_range : loader_version_range,
-            mod_id               : mod_id,
-            mod_name             : mod_name,
-            mod_version          : project.version,
-            mod_license          : mod_license
-    ]
-    inputs.properties replaceProperties
-    filesMatching(['META-INF/mods.toml']) {
-        expand replaceProperties + [project: project]
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 17
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }

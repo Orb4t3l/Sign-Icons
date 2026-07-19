@@ -1,15 +1,15 @@
 package com.orbital.signicons;
 
-import net.minecraftforge.fml.common.Mod;
+import net.fabricmc.api.ClientModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Mod(SignIcons.MOD_ID)
-public class SignIcons {
+public class SignIcons implements ClientModInitializer {
     public static final String MOD_ID = "signicons";
     public static final Logger LOGGER = LoggerFactory.getLogger("SignIcons");
 
-    public SignIcons() {
+    @Override
+    public void onInitializeClient() {
         LOGGER.info("SignIcons loaded");
     }
 }
